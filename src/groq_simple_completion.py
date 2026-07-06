@@ -40,5 +40,5 @@ def generate_with_groq(prompt, model="llama3-8b-8192"):
 # Example usage
 if __name__ == "__main__":
     user_prompt = "Explain quantum computing in simple terms."
-    result = generate_with_groq(user_prompt, model="moonshotai/kimi-k2-instruct")
+    result = generate_with_groq(user_prompt, model="meta-llama/llama-4-scout-17b-16e-instruct")
     print(result)
