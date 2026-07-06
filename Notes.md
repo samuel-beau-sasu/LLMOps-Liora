@@ -19,6 +19,7 @@ hermes model google/gemma-4-31b-it:free
 
 #dans une session Hermes 
 /model google/gemma-4-31b-it:free
+/model google/step-3.7-flash:free
 
 # Liste des models
 step-3.7-flash:free
