@@ -43,3 +43,5 @@ curl http://3.253.82.27:5000/health
 curl http://localhost:8000/docs  # FastAPI
 curl http://localhost:8001/health  # LiteLLM
 curl http://localhost:5001         # MLflow
+
+curl -X POST http://localhost:8000/generate -H "Content-Type: application/json" -d '{"model": "groq-primary", "prompt": "Décrire le LLMOps en une phrase."}'
