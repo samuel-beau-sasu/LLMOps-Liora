@@ -34,12 +34,9 @@ def get_default_model():
         
         print(f"DEBUG: Available models: {available_models}")
         
-        # Priority order: Groq Kimi first, then fallbacks
+        # Priority order
         priority_models = [
-            "groq-kimi-primary",  # Our Groq Kimi model via LiteLLM
-            "gpt-4o-secondary", 
-            "gemini-third", 
-            "openrouter-fallback"
+            "groq-primary",  # Primary Groq model via LiteLLM
         ]
         
         for model in priority_models:
@@ -50,8 +47,8 @@ def get_default_model():
     except Exception as e:
         print(f"DEBUG: Error getting models: {e}")
     
-    print("DEBUG: Using fallback: groq-kimi-primary")
-    return "groq-kimi-primary"
+    print("DEBUG: Using fallback: groq-primary")
+    return "groq-primary"
 
 # --- Pydantic Models for API requests and responses ---
 class PromptRequest(BaseModel):

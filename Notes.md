@@ -29,3 +29,17 @@ nvidia/nemotron-3-ultra-550b-a55b:free
 nousresearch/hermes-3-llama-3.1-405b:free
 openai/gpt-oss-120b:free
 z-ai/glm-4.5-air:free
+
+# en utilisant uv (en restant à la racine du repository)
+uv run src/groq_simple_completion.py
+
+
+ubuntu@ip-172-31-28-100:~/LLMOps-setup-course/litellm$ docker-compose up -d --build
+
+
+curl http://3.253.82.27:5000/health
+
+# Vérification que tous les services sont opérationnels
+curl http://localhost:8000/docs  # FastAPI
+curl http://localhost:8001/health  # LiteLLM
+curl http://localhost:5001         # MLflow
