@@ -1,17 +1,32 @@
-# LiteLLM Proxy Configuration
+# LiteLLM Proxy Configuration - Correct Fallback Setup
 
+# Define each model with a unique name
 model_list:
-  - model_name: groq-primary
+  - model_name: openrouter
+    litellm_params:
+      model: openrouter/mistralai/mistral-7b-instruct:free
+      api_key: os.environ/OPENROUTER_API_KEY
+  - model_name: gemini
+    litellm_params:
+      model: gemini/gemini-2.0-flash-exp
+      api_key: os.environ/GEMINI_API_KEY
+  - model_name: groq
     litellm_params:
       model: meta-llama/llama-4-scout-17b-16e-instruct
       api_key: os.environ/GROQ_API_KEY
       api_base: https://api.groq.com/openai/v1
       custom_llm_provider: openai
 
+# General settings for LiteLLM.
 litellm_settings:
-  callbacks: ["mlflow"]
   log_level: DEBUG
 
+# Router fallback mapping
+router_settings:
+  fallbacks:
+    - "openrouter": ["gemini", "groq"]
+
+# Callback settings for native integrations.
 callback_settings:
   mlflow:
     experiment_name: "llmops-new"

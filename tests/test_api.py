@@ -20,10 +20,10 @@ def print_response(response):
 
 def test_generate_smart_router():
     """Test the /generate endpoint with the default model."""
-    print("--- Testing /generate with groq-kimi-primary ---")
+    print("--- Testing /generate with openrouter ---")
     payload = {
         "prompt": "What is the capital of France? And what is the most famous monument?",
-        "model": "groq-kimi-primary"  # Updated to use available model
+        "model": "openrouter"  # Updated to use available model
     }
     try:
         response = requests.post(f"{BASE_URL}/generate", json=payload, timeout=60)
@@ -34,10 +34,10 @@ def test_generate_smart_router():
 
 def test_generate_specific_model():
     """Test the /generate endpoint with a specific model from the router."""
-    print("--- Testing /generate with gemini-secondary model ---")
+    print("--- Testing /generate with gemini model ---")
     payload = {
         "prompt": "Explain the theory of relativity in one simple sentence.",
-        "model": "gemini-secondary"
+        "model": "gemini"
     }
     try:
         response = requests.post(f"{BASE_URL}/generate", json=payload, timeout=60)

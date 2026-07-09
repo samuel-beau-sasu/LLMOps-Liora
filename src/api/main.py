@@ -36,7 +36,8 @@ def get_default_model():
         
         # Priority order
         priority_models = [
-            "groq-primary",  # Primary Groq model via LiteLLM
+            #"groq-primary",  # Primary Groq model via LiteLLM
+            "openrouter", #"gemini", "groq",
         ]
         
         for model in priority_models:
@@ -47,8 +48,8 @@ def get_default_model():
     except Exception as e:
         print(f"DEBUG: Error getting models: {e}")
     
-    print("DEBUG: Using fallback: groq-primary")
-    return "groq-primary"
+    print("DEBUG: Using fallback: groq")
+    return "groq"
 
 # --- Pydantic Models for API requests and responses ---
 class PromptRequest(BaseModel):
@@ -120,8 +121,7 @@ async def debug_config():
     }
 
 # Available models from LiteLLM proxy (fallbacks handled by proxy)
-# Models: gpt-4o-primary, gemini-secondary, openrouter-fallback, smart-router
-# smart-router has fallbacks: gemini-secondary -> openrouter-fallback
+# Models: openrouter, gemini, groq
 
 @app.post("/generate", response_model=PromptResponse)
 @mlflow.trace(name="llm_generation", span_type=SpanType.LLM)

@@ -1,3 +1,17 @@
+# Démarrer Hermes
+
+## Step 2: Set Your API Key
+
+hermes config set OPENROUTER_API_KEY <YOUR_API_KEY>
+
+## Step 3: Configure Your Model
+
+hermes chat --provider openrouter --model 'google/gemma-4-31b-it:free'
+hermes chat --provider openrouter --model 'google/gemma-4-31b-it'
+hermes chat --provider openrouter --model 'z-ai/glm-5.2'
+
+
+
 # Récupération du repository de formation
 git clone https://github.com/DataScientest/LLMOps-setup-course.git
 
@@ -44,4 +58,12 @@ curl http://localhost:8000/docs  # FastAPI
 curl http://localhost:8001/health  # LiteLLM
 curl http://localhost:5001         # MLflow
 
-curl -X POST http://localhost:8000/generate -H "Content-Type: application/json" -d '{"model": "groq-primary", "prompt": "Décrire le LLMOps en une phrase."}'
+34.243.0.198:5001
+34.243.0.198:8000/docs
+
+curl -X POST http://localhost:8000/generate -H "Content-Type: application/json" -d '{"model": "groq", "prompt": "Décrire le LLMOps en une phrase."}'
+
+
+#
+docker-compose up -d --build
+docker-compose down

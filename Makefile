@@ -108,7 +108,7 @@ api-generate: check-env ## Generate text with default model (prompt required: ma
 	@echo "${GREEN}Generating text with prompt: $(PROMPT)${RESET}"
 	@curl -s -X POST http://localhost:8000/generate \
 		-H "Content-Type: application/json" \
-		-d '{"prompt": "$(PROMPT)", "model": "groq-kimi-primary"}' | jq
+		-d '{"prompt": "$(PROMPT)", "model": "openrouter"}' | jq
 
 api-generate-gemini: check-env ## Generate text with Gemini model (prompt required: make api-generate-gemini PROMPT="your prompt")
 	@if [ -z "$(PROMPT)" ]; then \
@@ -118,7 +118,7 @@ api-generate-gemini: check-env ## Generate text with Gemini model (prompt requir
 	@echo "${GREEN}Generating text with Gemini: $(PROMPT)${RESET}"
 	@curl -s -X POST http://localhost:8000/generate \
 		-H "Content-Type: application/json" \
-		-d '{"prompt": "$(PROMPT)", "model": "gemini-third"}' | jq
+		-d '{"prompt": "$(PROMPT)", "model": "gemini"}' | jq
 
 api-generate-groq: check-env ## Generate text with Groq model (prompt required: make api-generate-groq PROMPT="your prompt")
 	@if [ -z "$(PROMPT)" ]; then \
@@ -128,7 +128,7 @@ api-generate-groq: check-env ## Generate text with Groq model (prompt required: 
 	@echo "${GREEN}Generating text with Groq: $(PROMPT)${RESET}"
 	@curl -s -X POST http://localhost:8000/generate \
 		-H "Content-Type: application/json" \
-		-d '{"prompt": "$(PROMPT)", "model": "groq-kimi-primary"}' | jq
+		-d '{"prompt": "$(PROMPT)", "model": "groq"}' | jq
 
 api-generate-openai: check-env ## Generate text with OpenAI model (prompt required: make api-generate-openai PROMPT="your prompt")
 	@if [ -z "$(PROMPT)" ]; then \
@@ -148,7 +148,7 @@ api-generate-openrouter: check-env ## Generate text with OpenRouter model (promp
 	@echo "${GREEN}Generating text with OpenRouter: $(PROMPT)${RESET}"
 	@curl -s -X POST http://localhost:8000/generate \
 		-H "Content-Type: application/json" \
-		-d '{"prompt": "$(PROMPT)", "model": "openrouter-fallback"}' | jq
+		-d '{"prompt": "$(PROMPT)", "model": "openrouter"}' | jq
 ##@ Helpers
 
 .DEFAULT_GOAL := help

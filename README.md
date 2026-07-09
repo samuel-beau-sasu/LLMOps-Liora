@@ -43,7 +43,7 @@ Content-Type: application/json
 
 {
   "prompt": "Your prompt here",
-  "model": "smart-router",  # Uses cascade fallback
+  "model": "openrouter",  # Uses cascade fallback
   "temperature": 0.7
 }
 ```
@@ -60,11 +60,11 @@ GET /health
 
 ## Model Fallback Strategy
 
-1. **Primary**: `gpt-4o-primary` (OpenAI GPT-4o)
-2. **Secondary**: `gemini-secondary` (Gemini 2.0 Flash)
-3. **Fallback**: `openrouter-fallback` (Mistral 7B via OpenRouter)
+1. **Primary**: `openrouter` (OpenRouter/Mistral 7B)
+2. **Secondary**: `gemini` (Gemini 2.0 Flash)
+3. **Fallback**: `groq` (Meta Llama 4 Scout via Groq)
 
-Use `smart-router` model name to enable automatic fallback.
+Use `openrouter` as primary model to trigger automatic fallback.
 
 ## Monitoring with MLflow
 
