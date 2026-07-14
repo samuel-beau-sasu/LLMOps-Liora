@@ -58,9 +58,10 @@ curl http://localhost:8000/docs  # FastAPI
 curl http://localhost:8001/health  # LiteLLM
 curl http://localhost:5001         # MLflow
 
-3.249.54.113:5001
-3.249.54.113:8000
-3.249.54.113:8001
+
+63.32.98.161:5001
+63.32.98.161:8000
+63.32.98.161:8001
 
 curl -X POST http://localhost:8000/generate -H "Content-Type: application/json" -d '{"model": "groq", "prompt": "Décrire le LLMOps en une phrase."}'
 
@@ -79,7 +80,7 @@ docker-compose up --build -d --force-recreate
 curl -X POST http://localhost:8000/generate \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "groq",
+    "model": "openrouter",
     "prompt": "Décrire le LLMOps en une phrase.",
     "system_prompt": "Tu es un expert en DevOps et MLOps. Réponds toujours de manière très technique et précise, en utilisant le jargon professionnel."
   }'
@@ -105,3 +106,112 @@ curl -X POST http://localhost:8000/generate \
  **Amélioration de l'efficacité opérationnelle** : LLMOps permet d'automatiser et d'optimiser les processus opérationnels, ce qui conduit à une augmentation de la productivité et à une réduction des coûts.\n\n2. 
  **Prise de décision basée sur les données** : Grâce à l'analyse avancée des données et à l'apprentissage automatique, LLMOps fournit des informations précieuses pour prendre des décisions éclairées.\n\n3. 
  **Gestion des risques** : LLMOps peut aider à identifier et à atténuer les risques potentiels en analysant les","model":"groq","prompt_tokens":19,"completion_tokens":150,"total_tokens":169,"cost":0.0}ubuntu@ip-172-31-28-100:~/LLMOps-setup-course$ 
+
+
+# Température basse - Factuel
+curl -X POST http://localhost:8000/generate \
+  -H "Content-Type: application/json" \
+  -d '{"model": "groq", "prompt": "Décris Python en une phrase", "temperature": 0.2}'
+
+"response":"Python est un langage de programmation interprété, de haut niveau, utilisé pour développer une grande variété d'applications, allant des scripts simples aux applications complexes, en passant par l'apprentissage automatique et le développement web."
+
+# Température haute - Créatif
+curl -X POST http://localhost:8000/generate \
+  -H "Content-Type: application/json" \
+  -d '{"model": "groq", "prompt": "Décris Python en une phrase", "temperature": 0.9}'
+
+"response":"Python est un langage de programmation interprété, interactif et orienté objet, qui permet aux développeurs d'écrire des programmes rapidement et efficacement grâce à sa syntaxe simple et lisible."
+
+
+# ❌ Sans exemple (zero-shot)
+curl -X POST http://localhost:8000/generate \
+  -H "Content-Type: application/json" \
+  -d '{"model": "groq", "prompt": "Ce produit est décevant"}'
+
+"response":"Je suis désolé d'apprendre que vous avez été déçu par un produit. Pouvez-vous me donner plus de détails sur le produit et sur ce qui vous a déçu ? Cela me permettra de mieux comprendre votre problème et de vous offrir une aide plus précise."
+
+# ✅ Avec exemples (few-shot - la température est importante dans cet exemple)
+curl -X POST http://localhost:8000/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "groq",
+    "prompt": "Classe le sentiment (positif/neutre/négatif):\n\nExemples:\n\"J'\''adore ce service\" → positif\n\"C'\''est correct\" → neutre\n\"Très déçu\" → négatif\n\nMaintenant:\n\"Ce produit est décevant\"",
+    "temperature": 0.2
+  }'
+
+"response":"Le sentiment de la phrase \"Ce produit est décevant\" est négatif."
+
+# Garantir des sorties JSON
+
+curl -X POST http://localhost:8000/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "groq",
+    "prompt": "IMPORTANT: Réponds UNIQUEMENT avec du JSON valide, aucun autre texte.\n\nExtrais les infos:\n\"Marie Dupont, 30 ans, développeuse\"\n\nFormat: {\"nom\": \"...\", \"age\": ..., \"metier\": \"...\"}",
+    "temperature": 0.1
+  }' | jq -r '.response' | jq .
+
+curl -X POST http://localhost:8000/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "groq",
+    "prompt": "IMPORTANT: Réponds UNIQUEMENT avec du JSON valide, aucun autre texte.\n\nExtrais les infos:\n\"Marie Dupont, 30 ans, développeuse\"\n\nFormat: {\"nom\": \"...\", \"age\": ..., \"metier\": \"...\"}",
+    "temperature": 0.1,
+    "response_format": { "type": "json_object" }
+  }' | jq -r '.response' | jq .
+
+curl -X POST http://localhost:8000/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "groq",
+    "prompt": "Extrais les informations d'\''événement au format JSON:\n\nExemples:\n\"Concert le 10/06/2023 à Lyon\" → {\"type\": \"Concert\", \"date\": \"10/06/2023\", \"lieu\": \"Lyon\"}\n\"Séminaire marketing le 22/11/2023 à Bordeaux\" → {\"type\": \"Séminaire marketing\", \"date\": \"22/11/2023\", \"lieu\": \"Bordeaux\"}\n\nMaintenant:\n\"Conférence tech le 15/09/2023 à Paris\" → ",
+    "temperature": 0.1,
+    "response_format": { "type": "json_object" }
+  }' | jq -r '.response' | jq .
+
+# Patterns de prompts par cas d'usage
+
+## 1. Extraction de données
+
+curl -X POST http://localhost:8000/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "groq",
+    "prompt": "Tu es un extracteur de données.\nRÈGLE: JSON uniquement.\n\nExemples:\n\"Facture N°123, Client: ABC Corp\" → {\"numero\": \"123\", \"client\": \"ABC Corp\"}\n\nMaintenant:\n\"Commande #456, Produit: Laptop\" → ",
+    "temperature": 0.1,
+    "response_format": { "type": "json_object" }
+  }' | jq -r '.response' | jq .
+
+## 2. Classification
+
+34.246.171.145
+34.246.171.145
+34.246.171.145:5001
+
+## 3. Validation
+
+curl -X POST http://localhost:8000/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "groq",
+    "prompt": "Vérifie si l'\''email est valide (oui/non):\nRÈGLE: JSON uniquement.\n\nExemples:\n\"jean@test.com\" → oui\n\"email-invalide\" → non\n\"marie@\" → non\n\nMaintenant:\n\"paul.martin@entreprise.fr\" → ",
+    "temperature": 0.1,
+    "response_format": { "type": "json_object" }
+  }' | jq -r '.response' | jq .
+
+
+curl -X POST http://localhost:8000/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "groq",
+    "prompt": "Vérifie si l'\''email est valide (oui/non):\n\nExemples:\n\"jean@test.com\" → oui\n\"email-invalide\" → non\n\"marie@\" → non\n\nMaintenant:\n\"paul.martin@entreprise.fr\" → ",
+    "temperature": 0.1
+  }' 
+
+# Automatisation
+
+uv run src/extract_contact_info.py
+
+# Structured Output avec JSON Schema
+
+

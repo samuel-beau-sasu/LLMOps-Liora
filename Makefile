@@ -28,7 +28,7 @@ start: check-env ## Start all services
 	@echo "\n${GREEN}Services started successfully!${RESET}"
 	@echo "- API: http://localhost:8000"
 	@echo "- LiteLLM: http://localhost:8001"
-	@echo "- MLflow UI: http://localhost:5000"
+	@echo "- MLflow UI: http://localhost:5001"
 
 stop: ## Stop all services
 	@echo "${YELLOW}Stopping LLMOps environment...${RESET}"
