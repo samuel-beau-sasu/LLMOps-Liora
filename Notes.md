@@ -215,3 +215,10 @@ uv run src/extract_contact_info.py
 # Structured Output avec JSON Schema
 
 
+git restore --source chap2 -- src/test_structured_output.py
+
+uv run src/test_structured_output.py
+
+108.130.94.190:5001
+108.130.94.190:8000
+108.130.94.190:8001

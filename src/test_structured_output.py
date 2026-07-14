@@ -1,70 +1,128 @@
-# src/test_structured_output.py 
-
+# src/test_structured_output.py
 import requests
 import json
 
-def extract_contact_info(text):
-    """Extract contact information using the local LLM API."""
-
+def test_structured_output():
+    """Test the structured output functionality with JSON schema."""
+    
     url = "http://localhost:8000/generate"
-
-    # Define system prompt for role specification
-    #system_prompt = "Tu es un assistant spécialisé dans l'extraction précise de données. Extrais uniquement les informations demandées au format JSON spécifié. Ne fais aucun commentaire."
-
-    # Create few-shot examples in the prompt
-    prompt = f"""Extrais le nom, l'email et le numéro de téléphone du texte suivant et retourne-les au format JSON.
-
-            Exemples:
-            "Veuillez contacter Jean Martin à jean.martin@example.com ou au 01-23-45-67-89" → {{"nom": "Jean Martin", "email": "jean.martin@example.com", "telephone": "01-23-45-67-89"}}
-            "Pour plus d'informations: Sophie Durand (sophie@company.fr, 07-11-22-33-44)" → {{"nom": "Sophie Durand", "email": "sophie@company.fr", "telephone": "07-11-22-33-44"}}
-            "Notre représentant Pierre Blanc (p.blanc@corp.com) est joignable au 06-99-88-77-66" → {{"nom": "Pierre Blanc", "email": "p.blanc@corp.com", "telephone": "06-99-88-77-66"}}
-
-            Maintenant:
-            "{text}" → """
-
-    # Set parameters - low temperature for deterministic extraction    
+    
+    # Define a JSON schema for contact information extraction
+    contact_schema = {
+        "type": "json_schema",
+        "json_schema": {
+            "name": "contact_extraction",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "nom": {
+                        "type": "string",
+                        "description": "Le nom complet de la personne"
+                    },
+                    "email": {
+                        "type": "string",
+                        "description": "L'adresse email de la personne"
+                    },
+                    "telephone": {
+                        "type": "string",
+                        "description": "Le numéro de téléphone de la personne"
+                    }
+                },
+                "required": ["nom", "email", "telephone"],
+                "additionalProperties": False
+            },
+            "strict": True
+        }
+    }
+    
+    # Test data
+    test_text = "Contactez notre chef de projet Marc Dubois au 06-12-34-56-78 ou marc.dubois@entreprise.com"
+    
+    # Create the request payload with structured output
     payload = {
-        "prompt": prompt,  # peut être bien plus court, sans les 3 exemples
+        "prompt": f"Extrais les informations de contact du texte suivant: {test_text}",
+        "system_prompt": "Tu es un assistant spécialisé dans l'extraction de données. Extrais uniquement les informations demandées au format JSON spécifié.",
         "model": "openrouter",
         "temperature": 0.1,
         "max_tokens": 150,
-        "response_format": {
-            "type": "json_schema",
-            "json_schema": {
-                "name": "contact_info",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "nom": {"type": "string", "description": "Nom complet de la personne"},
-                        "email": {"type": "string", "description": "Adresse email"},
-                        "telephone": {"type": "string", "description": "Numéro de téléphone"}
-                    },
-                    "required": ["nom", "email", "telephone"],
-                    "additionalProperties": False
-                },
-                "strict": True
-            }
-        }
+        "response_format": contact_schema
     }
-
+    
+    print("=== Test Structured Output ===")
+    print(f"Texte d'entrée: {test_text}")
+    print(f"Schema utilisé: {json.dumps(contact_schema, indent=2)}")
+    print("\nEnvoi de la requête...")
+    
     # Make the API call
     response = requests.post(url, json=payload)
-    response_data = response.json()
-
-    # Parse the response string as JSON
-    extracted_info = json.loads(response_data['response'])
     
-    return extracted_info
+    if response.status_code == 200:
+        result = response.json()
+        print(f"\n✅ Succès! Réponse reçue:")
+        print(f"Modèle utilisé: {result['model']}")
+        print(f"Tokens: {result['prompt_tokens']} prompt + {result['completion_tokens']} completion = {result['total_tokens']} total")
+        print(f"Coût: {result['cost']}")
+        
+        # Parse and display the structured response
+        try:
+            structured_data = json.loads(result['response'])
+            print(f"\n📋 Données extraites (format structuré):")
+            print(json.dumps(structured_data, indent=2, ensure_ascii=False))
+            
+            # Validate the structure
+            required_fields = ["nom", "email", "telephone"]
+            missing_fields = [field for field in required_fields if field not in structured_data]
+            
+            if not missing_fields:
+                print(f"\n✅ Validation: Tous les champs requis sont présents")
+            else:
+                print(f"\n❌ Validation: Champs manquants: {missing_fields}")
+                
+        except json.JSONDecodeError as e:
+            print(f"\n❌ Erreur: La réponse n'est pas un JSON valide: {e}")
+            print(f"Réponse brute: {result['response']}")
+    else:
+        print(f"\n❌ Erreur HTTP {response.status_code}:")
+        print(response.text)
+
+def test_without_structured_output():
+    """Test the same extraction without structured output for comparison."""
+    
+    url = "http://localhost:8000/generate"
+    test_text = "Contactez notre chef de projet Marc Dubois au 06-12-34-56-78 ou marc.dubois@entreprise.com"
+    
+    payload = {
+        "prompt": f"Extrais les informations de contact du texte suivant au format JSON: {test_text}",
+        "system_prompt": "Tu es un assistant spécialisé dans l'extraction de données. Réponds uniquement en JSON avec les champs nom, email, telephone.",
+        "model": "openrouter",
+        "temperature": 0.1,
+        "max_tokens": 150
+    }
+    
+    print("\n\n=== Test Sans Structured Output (pour comparaison) ===")
+    print(f"Texte d'entrée: {test_text}")
+    print("\nEnvoi de la requête...")
+    
+    response = requests.post(url, json=payload)
+    
+    if response.status_code == 200:
+        result = response.json()
+        print(f"\n✅ Succès! Réponse reçue:")
+        print(f"Réponse brute: {result['response']}")
+        
+        try:
+            structured_data = json.loads(result['response'])
+            print(f"\n📋 Données extraites:")
+            print(json.dumps(structured_data, indent=2, ensure_ascii=False))
+        except json.JSONDecodeError as e:
+            print(f"\n❌ Erreur: La réponse n'est pas un JSON valide: {e}")
+    else:
+        print(f"\n❌ Erreur HTTP {response.status_code}:")
+        print(response.text)
 
 if __name__ == "__main__":
-    # Test with example text
-    test_text = "Contactez notre chef de projet Marc Dubois au 06-12-34-56-78 ou marc.dubois@entreprise.com"
-    result = extract_contact_info(test_text)
-
-    print("Texte d'entrée:", test_text)
-    print("\nRésultat de l'extraction:")
-    print(json.dumps(result, indent=2))
-
-    # Expected output:
-    # {"nom": "Marc Dubois", "email": "marc.dubois@entreprise.com", "telephone": "06-12-34-56-78"}
+    # Test with structured output
+    test_structured_output()
     
+    # Test without structured output for comparison
+    test_without_structured_output()
